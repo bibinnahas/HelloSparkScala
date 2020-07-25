@@ -3,6 +3,7 @@ package com.bbn.sample
 import java.nio.charset.CodingErrorAction
 
 import scala.io.{Codec, Source}
+import scala.math.sqrt
 
 object MovieRecommendation {
 
@@ -34,7 +35,7 @@ object MovieRecommendation {
     movie1 < movie2
   }
 
-  def makePairs(userRating: UserRatingPair) = {
+  def makePairs(userRating: UserRatingPair): ((Int, Int), (Double, Double)) = {
     val movieRating1 = userRating._2._1
     val movieRating2 = userRating._2._2
     val movie1 = movieRating1._1
@@ -45,8 +46,31 @@ object MovieRecommendation {
     ((movie1, movie2), (rating1, rating2))
   }
 
-  def computeSimilarity = {
-    ???
+  type RatingPair = (Double, Double)
+  type RatingPairs = Iterable[RatingPair]
+
+  def computeSimilarity(ratingPairs: RatingPairs): (Double, Int) = {
+    var numPairs = 0
+    var sum_xx = 0.0
+    var sum_yy = 0.0
+    var sum_xy = 0.0
+
+    for(pair <- ratingPairs) {
+      val ratingX = pair._1
+      val ratingY = pair._2
+
+      sum_xx += ratingX * ratingX
+      sum_yy += ratingY * ratingY
+      sum_xy += ratingX * ratingY
+      numPairs += 1
+    }
+    val numerator = sum_xy
+    val denominator = sqrt(sum_xx) * sqrt(sum_yy)
+
+    var score = 0.0
+    if (denominator != 0) score = (numerator / denominator)
+
+    (score, numPairs)
   }
 
   def main(args: Array[String]): Unit = {
