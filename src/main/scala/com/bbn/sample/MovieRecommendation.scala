@@ -76,13 +76,13 @@ object MovieRecommendation {
   def main(args: Array[String]): Unit = {
     Frame.logger
     val sc = Frame.contextSpark("MovieRecommendationAlgorithm")
-    //Load movie names
     val movieDict = loadMovieNames()
     val data = sc.textFile(s"${Frame.path}../ml-100k/u.data")
     val ratings = data.map(x => x.split("\t")).map(x => (x(0).toInt, (x(1).toInt, x(2).toDouble)))
     val selfJoinedRatings = ratings.join(ratings)
     val uniqueJoinedRating = selfJoinedRatings.filter(filterDuplicates)
-    val moviePairs = uniqueJoinedRating.map(makePairs).groupByKey().mapValues(computeSimilarity).cache()
+    val moviePairsTemp = uniqueJoinedRating.map(makePairs).groupByKey()
+    val moviePairs  = moviePairsTemp.mapValues(computeSimilarity).cache()
 
     if (args.length > 0) {
       val scoreThreshold = 0.97
@@ -107,5 +107,6 @@ object MovieRecommendation {
         println(movieDict(similarMovieID) + "\tscore: " + sim._1 + "\tstrength: " + sim._2)
       }
     }
+    moviePairsTemp.foreach(println)
   }
 }
