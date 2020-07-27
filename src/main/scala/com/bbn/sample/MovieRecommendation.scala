@@ -55,7 +55,7 @@ object MovieRecommendation {
     var sum_yy = 0.0
     var sum_xy = 0.0
 
-    for(pair <- ratingPairs) {
+    for (pair <- ratingPairs) {
       val ratingX = pair._1
       val ratingY = pair._2
 
@@ -84,8 +84,20 @@ object MovieRecommendation {
     val uniqueJoinedRating = selfJoinedRatings.filter(filterDuplicates)
     val moviePairs = uniqueJoinedRating.map(makePairs).groupByKey().mapValues(computeSimilarity).cache()
 
-    moviePairs.foreach(println)
+    if (args.length > 0) {
+      val scoreThreshold = 0.97
+      val coOccurenceThreshold = 50.0
 
+      val movieID: Int = args(0).toInt
+      val filteredResults = moviePairs.filter(x => {
+        val pair = x._1
+        val sim = x._2
+        (pair._1 == movieID || pair._2 == movieID) && sim._1 > scoreThreshold && sim._2 > coOccurenceThreshold
+      })
 
+      val results = filteredResults.map(x => (x._2, x._1)).sortByKey(false).take(10)
+      results.foreach(println)
+
+    }
   }
 }
