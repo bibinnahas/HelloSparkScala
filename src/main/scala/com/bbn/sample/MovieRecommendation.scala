@@ -8,7 +8,7 @@ import scala.math.sqrt
 object MovieRecommendation {
 
   def loadMovieNames(): Map[Int, String] = {
-    implicit val codec = Codec("UTF-8")
+    implicit val codec: Codec = Codec("UTF-8")
     codec.onMalformedInput(CodingErrorAction.REPLACE)
     codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
@@ -68,7 +68,7 @@ object MovieRecommendation {
     val denominator = sqrt(sum_xx) * sqrt(sum_yy)
 
     var score = 0.0
-    if (denominator != 0) score = (numerator / denominator)
+    if (denominator != 0) score = numerator / denominator
 
     (score, numPairs)
   }
@@ -96,8 +96,16 @@ object MovieRecommendation {
       })
 
       val results = filteredResults.map(x => (x._2, x._1)).sortByKey(false).take(10)
-      results.foreach(println)
-
+      println("\nTop 10 similar movies for " + movieDict(movieID))
+      for (result <- results) {
+        val sim = result._1
+        val pair = result._2
+        var similarMovieID = pair._1
+        if (similarMovieID == movieID) {
+          similarMovieID = pair._2
+        }
+        println(movieDict(similarMovieID) + "\tscore: " + sim._1 + "\tstrength: " + sim._2)
+      }
     }
   }
 }
