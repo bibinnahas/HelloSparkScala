@@ -107,6 +107,5 @@ object MovieRecommendation {
         println(movieDict(similarMovieID) + "\tscore: " + sim._1 + "\tstrength: " + sim._2)
       }
     }
-    moviePairsTemp.foreach(println)
   }
 }
