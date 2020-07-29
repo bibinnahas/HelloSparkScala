@@ -16,12 +16,21 @@ object SparkSqlExample {
     val spark = sparkSql("sample")
     val lines = spark.sparkContext.textFile(s"${Frame.path}/fakefriends.csv")
     import spark.implicits._
-    val people = lines.map(mapper).toDS
+    val people = lines.map(mapper).toDS.cache()
 
+    println("Schema Inferred")
     people.printSchema()
     people.createOrReplaceTempView("people_table")
     val teenagers = spark.sql("SELECT * FROM people_table WHERE age > 12 and age < 20")
-    teenagers.collect().foreach(println)
+    //teenagers.collect().foreach(println)
+    println("10 name column")
+    people.select("name").show(10)
+    println("10 people age above 21")
+    people.filter(people("age") > 21).show(10)
+    println("grouped by age")
+    people.groupBy("age").count().show(10)
+    println("Manipulating columns")
+    people.select(people("name"), people("age") +  100).show(10)
 
     spark.stop()
 
