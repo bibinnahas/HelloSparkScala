@@ -7,7 +7,7 @@ import org.apache.log4j._
 
 object Frame {
 
-  val path = "path/to/file"
+  val path = "path/to/files"
 
   def contextSpark(app: String = "DefaultApp"): SparkContext = {
     new SparkContext("local[*]", app)
