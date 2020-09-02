@@ -15,7 +15,7 @@ object ML {
     var movieNames: Map[Int, String] = Map()
     val lines = Source.fromFile(s"${Frame.path}/../ml-100k/u.item").getLines()
     for (line <- lines) {
-      var fields = line.split("|")
+      var fields = line.split('|')
       if (fields.length > 1) {
         movieNames += (fields(0).toInt -> fields(1))
       }
@@ -55,7 +55,7 @@ object ML {
     val users = Seq(userid).toDF("userId")
     val recommendations = model.recommendForUserSubset(users, 10)
 
-    println("\nTop 10 recommendations for user" + userid + ":")
+    println("\nTop 10 recommendations for user " + userid + ":")
 
     for (userRecs <- recommendations) {
       val myRecs = userRecs(1)
@@ -67,7 +67,6 @@ object ML {
         println(moviename, rating)
       }
     }
-
 
     spark.stop()
 
