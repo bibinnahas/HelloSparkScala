@@ -69,7 +69,5 @@ object ML {
     }
 
     spark.stop()
-
-
   }
 }
