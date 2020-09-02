@@ -1,17 +1,10 @@
 package com.bbn.sample
 
 import java.nio.charset.CodingErrorAction
-
-import org.apache.spark.sql.SparkSession
-
+import org.apache.spark.sql.{Row, SparkSession}
 import scala.io.{Codec, Source}
-
-import org.apache.spark.SparkContext._
-import org.apache.log4j._
-import scala.io.Source
-import java.nio.charset.CodingErrorAction
-import scala.io.Codec
 import org.apache.spark.ml.recommendation._
+import scala.collection.mutable.WrappedArray
 
 object ML {
   def loadMovies: Map[Int, String] = {
@@ -30,10 +23,9 @@ object ML {
     movieNames
   }
 
-  case class Rating(userId: Int, movieId: Int, rating: Double)
+  case class Rating(userId: Int, movieId: Int, rating: Float)
 
   def main(args: Array[String]): Unit = {
-    import org.apache.spark
 
     Frame.logger
     val spark = SparkSession
@@ -46,10 +38,9 @@ object ML {
 
     val nameDict = loadMovies
 
-    val data = spark.read.textFile("../ml-100k/u.data")
-    val ratings = data.map(x => x.split('\t')).map(x => Rating(x(0).toInt, x(1).toInt, x(2).toDouble)).toDF()
+    val data = spark.read.textFile(s"${Frame.path}/../ml-100k/u.data")
+    val ratings = data.map(x => x.split('\t')).map(x => Rating(x(0).toInt, x(1).toInt, x(2).toFloat)).toDF()
 
-    println("\nTraining recommendation model...")
 
     val als = new ALS()
       .setMaxIter(5)
@@ -62,10 +53,23 @@ object ML {
 
     val userid: Int = args(0).toInt
     val users = Seq(userid).toDF("userId")
-    val recommendations = model.recommendForAllUsers(10)
+    val recommendations = model.recommendForUserSubset(users, 10)
 
     println("\nTop 10 recommendations for user" + userid + ":")
 
+    for (userRecs <- recommendations) {
+      val myRecs = userRecs(1)
+      val temp = myRecs.asInstanceOf[WrappedArray[Row]]
+      for (rec <- temp) {
+        val movies = rec.getAs[Int](0)
+        val rating = rec.getAs[Float](1)
+        val moviename = nameDict(movies)
+        println(moviename, rating)
+      }
+    }
+
+
+    spark.stop()
 
 
   }
