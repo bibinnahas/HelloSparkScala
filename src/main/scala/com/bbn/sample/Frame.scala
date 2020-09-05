@@ -1,13 +1,12 @@
 package com.bbn.sample
 
 import org.apache.spark.SparkContext
-import org.apache.spark._
 import org.apache.spark.sql._
 import org.apache.log4j._
 
 object Frame {
 
-  val path = "/home/thesnibibin/Desktop/SparkScala/SparkScala"
+  val path = ""
 
   def contextSpark(app: String = "DefaultApp"): SparkContext = {
     new SparkContext("local[*]", app)
