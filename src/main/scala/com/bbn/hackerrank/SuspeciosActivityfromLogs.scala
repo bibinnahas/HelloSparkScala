@@ -5,7 +5,7 @@ import scala.io.StdIn
  * Input - stdin - 1.Logs size, 2.Logs (format - sender receiver amount), 3.threshold
  *
  */
-object Solution {
+object SuspeciosActivityfromLogs {
   def main(args: Array[String]) {
 //    Read input arguments from stdin
     val logsCount = StdIn.readLine.trim.toInt
